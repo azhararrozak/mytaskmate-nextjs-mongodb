@@ -1,17 +1,57 @@
 "use client";
+
 import { useState } from "react";
 import Link from "next/link";
 import Input from "./Input";
 import Button from "./Button";
+import { useRouter } from 'next/navigation'
 
 const RegisterForm = () => {
+  const router = useRouter();
   const [fullname, setFullname] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Registering with:", { fullname, email, password });
+
+    //console.log("Registering with:", { fullname, email, password });
+
+    const responseUserExist = await fetch("api/userExist", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    const { user } = await responseUserExist.json();
+
+    if (user) {
+      console.log("User already exists");
+      return;
+    }
+
+    const response = await fetch("/api/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ fullname, email, password }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log(data.message);
+
+      setFullname("");
+      setEmail("");
+      setPassword("");
+
+      router.push('/login');
+    } else {
+      console.error("An error occurred");
+    }
   };
 
   return (
