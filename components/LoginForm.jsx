@@ -3,14 +3,36 @@ import { useState } from "react";
 import Link from "next/link";
 import Input from "./Input";
 import Button from "./Button";
+import { signIn } from "next-auth/react";
+import { useRouter } from 'next/navigation'
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const router = useRouter();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Logging in with:", { email, password });
+    //console.log("Logging in with:", { email, password });
+
+    try {
+      const res = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      })
+
+      if (res.error) {
+        console.error(res.error);
+        return;
+      }
+
+      router.replace("/dashboard");
+
+
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
