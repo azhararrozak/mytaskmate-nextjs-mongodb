@@ -1,21 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from 'next/navigation';
 import Button from "./Button";
-import { useRouter } from 'next/navigation'
 
-const AddTaskForm = () => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [status, setStatus] = useState("Belum Selesai");
-
+const EditTaskForm = ({ taskData }) => {
   const router = useRouter();
+
+  // Pastikan taskData tidak undefined sebelum digunakan
+  const [title, setTitle] = useState(taskData?.title || "");
+  const [description, setDescription] = useState(taskData?.description || "");
+  const [status, setStatus] = useState(taskData?.status || "Belum Selesai");
+
+  useEffect(() => {
+    if (taskData) {
+      setTitle(taskData.title || "");
+      setDescription(taskData.description || "");
+      setStatus(taskData.status || "Belum Selesai");
+    }
+  }, [taskData]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const response = await fetch("/api/tasks", {
-      method: "POST",
+    const response = await fetch(`/api/tasks/${taskData._id}`, {
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
@@ -25,14 +34,9 @@ const AddTaskForm = () => {
     if (response.ok) {
       const data = await response.json();
       console.log(data.message);
-
-      setTitle("");
-      setDescription("");
-      setStatus("Belum Selesai");
-
       router.push('/dashboard');
     } else {
-      console.error("An error occurred");
+      console.error("Terjadi kesalahan saat memperbarui task");
     }
   };
 
@@ -46,6 +50,7 @@ const AddTaskForm = () => {
           type="text"
           id="title"
           name="title"
+          value={title}
           placeholder="Masukkan judul task ..."
           onChange={(e) => setTitle(e.target.value)}
           className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -53,15 +58,13 @@ const AddTaskForm = () => {
       </div>
 
       <div>
-        <label
-          className="block text-gray-700 font-bold mb-1"
-          htmlFor="description"
-        >
+        <label className="block text-gray-700 font-bold mb-1" htmlFor="description">
           Deskripsi Task
         </label>
         <textarea
           id="description"
           name="description"
+          value={description}
           placeholder="Masukkan deskripsi task ..."
           onChange={(e) => setDescription(e.target.value)}
           className="w-full p-2 border border-gray-300 rounded-lg h-24 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -75,6 +78,7 @@ const AddTaskForm = () => {
         <select
           id="status"
           name="status"
+          value={status}
           onChange={(e) => setStatus(e.target.value)}
           className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
@@ -85,10 +89,10 @@ const AddTaskForm = () => {
       </div>
 
       <div>
-        <Button text="Tambahkan Task" />
+        <Button text="Simpan Perubahan" />
       </div>
     </form>
   );
 };
 
-export default AddTaskForm;
+export default EditTaskForm;

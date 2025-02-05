@@ -10,9 +10,7 @@ const DashboardPage = () => {
       <Navbar />
       <div className="container mx-auto px-4 max-w-3xl min-h-screen mt-20">
         <HeaderAddTask />
-        <div className="my-10">
-          <TaskList />
-        </div>
+        <TaskList />
       </div>
     </div>
   );
