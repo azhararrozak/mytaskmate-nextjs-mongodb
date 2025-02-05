@@ -2,41 +2,43 @@ import { NextResponse } from "next/server";
 import { connectMongoDB } from "@/lib/mongodb";
 import Task from "@/models/task.model";
 
-export async function GET(req, params) {
-    try {
-        await connectMongoDB();
-        const task = await Task.findById(params.id);
+export async function GET(req, { params }) {
+  const { id } = await params;
 
-        return NextResponse.json({ task });
+  try {
+    await connectMongoDB();
+    const task = await Task.findById(id);
 
-    } catch (error) {
-        return NextResponse.json({ message: "An error occurred" }, { status: 500 });
-    }
+    return NextResponse.json({ task });
+  } catch (error) {
+    return NextResponse.json({ message: "An error occurred" }, { status: 500 });
+  }
 }
 
-export async function PUT(req, params) {
-    try {
-        const { title, description, status } = await req.json();
+export async function PUT(req, { params }) {
+  const { id } = await params;
 
-        await connectMongoDB();
-        await Task.findByIdAndUpdate(params.id, { title, description, status });
+  try {
+    const { title, description, status } = await req.json();
 
-        return NextResponse.json({ message: "Task updated successfully" });
-    }
-    catch (error) {
-        return NextResponse.json({ message: "An error occurred" }, { status: 500 });
-    }
+    await connectMongoDB();
+    await Task.findByIdAndUpdate(id, { title, description, status });
+
+    return NextResponse.json({ message: "Task updated successfully" });
+  } catch (error) {
+    return NextResponse.json({ message: "An error occurred" }, { status: 500 });
+  }
 }
 
-export async function DELETE(req, params) {
-    try {
-        await connectMongoDB();
-        await Task.findByIdAndDelete(params.id);
+export async function DELETE(req, { params }) {
+  const { id } = await params;
 
-        return NextResponse.json({ message: "Task deleted successfully" });
-    }
-    catch (error) {
-        return NextResponse.json({ message: "An error occurred" }, { status: 500 });
-    }
+  try {
+    await connectMongoDB();
+    await Task.findByIdAndDelete(id);
+
+    return NextResponse.json({ message: "Task deleted successfully" });
+  } catch (error) {
+    return NextResponse.json({ message: "An error occurred" }, { status: 500 });
+  }
 }
-
